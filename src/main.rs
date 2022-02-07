@@ -23,6 +23,9 @@ use console::Style;
 #[path = "./pkg/database/postgresql/mod.rs"]
 mod postgresql;
 
+#[path = "./pkg/database/redis/mod.rs"]
+mod redis_connection;
+
 mod service;
 use crate::service::User;
 
