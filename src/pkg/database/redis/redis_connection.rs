@@ -2,6 +2,7 @@ use redis::{Connection};
 use dotenv::dotenv;
 use std::env;
 
+#[allow(dead_code)]
 pub fn new_redis_connection() -> Connection {
     dotenv().ok();
 

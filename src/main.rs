@@ -2,6 +2,7 @@
 extern crate postgres;
 extern crate redis;
 extern crate dotenv;
+use dotenv::dotenv;
 
 extern crate chrono;
 
@@ -29,9 +30,16 @@ mod redis_connection;
 mod service;
 use crate::service::User;
 
+use std::env;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "0.0.0.0:11111".parse().unwrap();
+    dotenv().ok();
+    let mut port = env::var("PORT").expect("PORT must be set").to_owned();
+
+    port = format!("0.0.0.0:{:}", port) ;
+
+    let addr = port.parse().unwrap();
     let user = User::default();
 
     let blue = Style::new()
