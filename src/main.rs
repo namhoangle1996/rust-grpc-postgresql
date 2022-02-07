@@ -1,4 +1,11 @@
 // https://docs.rs/postgres/0.15.2/postgres/
+extern crate rustracing_jaeger;
+extern crate rustracing;
+use rustracing::sampler::AllSampler;
+
+use rustracing_jaeger::Tracer;
+use rustracing_jaeger::reporter::JaegerCompactReporter;
+
 extern crate postgres;
 extern crate redis;
 extern crate dotenv;
@@ -42,10 +49,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = port.parse().unwrap();
     let user = User::default();
 
-    let blue = Style::new()
-        .blue();
+    let magenta_style = Style::new()
+        .magenta();
 
-    println!("\nRust gRPC Server ready at {}", blue.apply_to(addr));
+    println!("\n gRPC Server ready at {}", magenta_style.apply_to(addr));
+
+    let (span_tx, span_rx) = crossbeam_channel::bounded(10);
+    let tracer = Tracer::with_sender(AllSampler, span_tx);
+    {
+        let span = tracer.span("grpc_main_service").start();
+        // Do something
+
+    }
+
+    let span = span_rx.try_recv().unwrap();
+    println!( "get span {:?}", span) ;
+
+    let reporter = JaegerCompactReporter::new("rust_grpc_service").unwrap();
+    reporter.report(&[span]).unwrap();
 
     Server::builder()
         .add_service(UserServiceServer::new(user))

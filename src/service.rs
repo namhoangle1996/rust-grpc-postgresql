@@ -1,6 +1,10 @@
 use chrono::{NaiveDate};
 use uuid::Uuid;
 
+// use rustracing_jaeger::sampler::AllSampler;
+// use rustracing_jaeger::Tracer;
+// use rustracing_jaeger::reporter::JaegerCompactReporter;
+
 #[path = "./pkg/database/postgresql/mod.rs"]
 mod postgresql;
 pub use postgresql::postgresql_connection::new_postgresql_db;
