@@ -20,7 +20,8 @@ extern crate uuid;
 extern crate console;
 use console::Style;
 
-mod db_connection;
+#[path = "./pkg/database/postgresql/mod.rs"]
+mod postgresql;
 
 mod service;
 use crate::service::User;

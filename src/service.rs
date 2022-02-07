@@ -1,7 +1,9 @@
 use chrono::{NaiveDate};
 use uuid::Uuid;
 
-use crate::db_connection::establish_connection;
+#[path = "./pkg/database/postgresql/mod.rs"]
+mod postgresql;
+pub use postgresql::postgresql_connection::new_postgresql_db;
 
 use tonic::{Request, Response, Status};
 
@@ -24,7 +26,7 @@ impl UserService for User {
 
         let LoginRequest {  phone_number , password} = &request.into_inner();
 
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let rows = &conn
             .query("SELECT password FROM users WHERE phone_number = $1 limit 1", &[&phone_number])
@@ -49,7 +51,7 @@ impl UserService for User {
         println!("Got a request: {:#?}", &request);
         let UserRequest {id,  phone_number } = &request.into_inner();
 
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let rows = &conn
             .query("SELECT * FROM users WHERE phone_number = $1 OR id= $2 limit 1", &[&phone_number, &id])
@@ -69,7 +71,7 @@ impl UserService for User {
 
     async fn list_users(&self, request: Request<EmptyBodyRequest>) -> Result<Response<Users>, Status> {
         println!("Got a request: {:#?}", &request);
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let mut v: Vec<UserReply> = Vec::new();
         for row in &conn.query("SELECT * FROM users order by date_of_birth asc", &[]).unwrap() {
@@ -102,7 +104,7 @@ impl UserService for User {
             password,
         } = &request.into_inner();
 
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let user_id = Uuid::new_v4().to_hyphenated().to_string();
         let serialize_date_of_birth = NaiveDate::parse_from_str(date_of_birth, "%Y-%m-%d").unwrap(); // String to Date
@@ -154,7 +156,7 @@ impl UserService for User {
 
         let serialize_date_of_birth = NaiveDate::parse_from_str(date_of_birth, "%Y-%m-%d").unwrap(); // String to Date
 
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let number_of_rows_affected = &conn
             .execute(
@@ -188,7 +190,7 @@ impl UserService for User {
     ) -> Result<Response<DeleteUserReply>, Status> {
         println!("Got a request: {:#?}", &request);
         let UserRequest { id, phone_number } = &request.into_inner();
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let number_of_rows_affected = &conn
             .execute("DELETE FROM users WHERE id = $1 OR phone_number = $2", &[&id, &phone_number ])
@@ -212,7 +214,7 @@ impl UserService for User {
         request: Request<EmptyBodyRequest>,
     ) -> Result<Response<DeleteUserReply>, Status> {
         println!("Got a request: {:#?}", &request);
-        let mut conn = establish_connection();
+        let mut conn = new_postgresql_db();
 
         let rows = &conn.query("DELETE FROM users", &[]).unwrap();
 
