@@ -9,6 +9,7 @@ use rustracing_jaeger::reporter::JaegerCompactReporter;
 extern crate postgres;
 extern crate redis;
 extern crate dotenv;
+extern crate mongodb;
 use dotenv::dotenv;
 
 extern crate chrono;
@@ -33,6 +34,9 @@ mod postgresql;
 
 #[path = "./pkg/database/redis/mod.rs"]
 mod redis_connection;
+
+#[path = "./pkg/database/mongodb/mod.rs"]
+mod mongo_connection;
 
 mod service;
 use crate::service::User;
